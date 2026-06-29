@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#15171C"/>
+
+  <defs>
+    <!-- Subtle gradient on plates for depth, rather than flat fill -->
+    <linearGradient id="plateGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A8E62E"/>
+      <stop offset="50%" stop-color="#C8FF4D"/>
+      <stop offset="100%" stop-color="#A8E62E"/>
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E2FF8C"/>
+      <stop offset="50%" stop-color="#C8FF4D"/>
+      <stop offset="100%" stop-color="#9FDB1F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ===== LEFT SIDE: outer + middle plates (drawn first, bar tucks behind innermost) ===== -->
+  <g>
+    <ellipse cx="80" cy="228" rx="34" ry="95" fill="url(#plateGrad)"/>
+    <ellipse cx="106" cy="228" rx="27" ry="74" fill="#9FDB1F"/>
+  </g>
+
+  <!-- ===== RIGHT SIDE: outer + middle plates ===== -->
+  <g>
+    <ellipse cx="432" cy="228" rx="34" ry="95" fill="url(#plateGrad)"/>
+    <ellipse cx="406" cy="228" rx="27" ry="74" fill="#9FDB1F"/>
+  </g>
+
+  <!-- ===== BENDING BAR =====
+       Bows UPWARD at center — the bar flexing as it's lifted off the
+       ground, plates pulling down at the ends while the lifter drives
+       the middle up. Control point sits well ABOVE the endpoints so
+       the bend survives downscaling to small icon sizes. Endpoints
+       extend slightly past where the innermost plate will be drawn,
+       so that plate's edge cleanly overlaps the bar end — a real
+       mechanical connection rather than a visible seam. -->
+  <path d="M 110 232 Q 256 174 402 232"
+        fill="none" stroke="url(#barGrad)" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- ===== Innermost plates, drawn ON TOP of the bar ends to create the tucked-in connection ===== -->
+  <ellipse cx="128" cy="230" rx="20" ry="55" fill="#76A816"/>
+  <ellipse cx="384" cy="230" rx="20" ry="55" fill="#76A816"/>
+
+  <!-- VfIT wordmark -->
+  <text x="256" y="410" font-family="Arial, sans-serif" font-weight="900" font-size="100"
+        fill="#FFFFFF" text-anchor="middle" letter-spacing="1">VfIT</text>
+</svg>
