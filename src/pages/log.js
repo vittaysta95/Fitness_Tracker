@@ -108,6 +108,15 @@ export async function renderLogPage() {
   // renderDraftCard below.
   let draftExerciseSearchQuery = '';
   let draftExerciseDropdownOpen = false;
+  // Tracks whether the person has actually typed in the draft's
+  // exercise field yet. Needed because an empty string is falsy, so
+  // checking `!draftExerciseSearchQuery` alone can't tell "field was
+  // never touched, default-fill it from the match" apart from "field
+  // was deliberately cleared to empty by the person" — without this
+  // flag, clearing the field to retype a correction would get
+  // silently overwritten back to the original match on every
+  // keystroke's rerender, which is exactly the bug this fixes.
+  let userHasEditedDraftExerciseSearch = false;
   // "Learn this pronunciation" prompt — appears right after correcting
   // a voice-originated draft's exercise, offering to save the original
   // mis-matched phrase as an alias of the now-correct exercise. Holds
@@ -164,11 +173,12 @@ export async function renderLogPage() {
         ? '<span style="font-size: 0.75rem; font-weight: 600; color: #facc15;">Low confidence — check this</span>'
         : '<span class="text-intensity" style="font-size: 0.75rem; font-weight: 600;">No match — pick an exercise</span>';
 
-    // If the search query hasn't been touched yet for this draft,
-    // default it to whatever exercise is currently matched — so
-    // correcting a misheard voice entry starts from "here's what we
-    // heard" rather than a blank search box.
-    if (!draftExerciseSearchQuery && d.matched_exercise_name) {
+    // Default-fill from whatever exercise is currently matched, but
+    // ONLY if the person hasn't actually edited this field yet — once
+    // they've typed anything (including clearing it to empty), their
+    // input is authoritative and must never be silently overwritten,
+    // per this app's "trust manual input over AI" rule throughout.
+    if (!userHasEditedDraftExerciseSearch && d.matched_exercise_name) {
       draftExerciseSearchQuery = d.matched_exercise_name;
     }
 
@@ -486,6 +496,7 @@ export async function renderLogPage() {
         // draft's correction — it shouldn't linger into this new one.
         draftExerciseSearchQuery = '';
         draftExerciseDropdownOpen = false;
+        userHasEditedDraftExerciseSearch = false;
         pronunciationLearnOffer = null;
         pronunciationLearnSavedMessage = null;
       }
@@ -649,6 +660,7 @@ export async function renderLogPage() {
       showManualEntryForm = false;
       draftExerciseSearchQuery = '';
       draftExerciseDropdownOpen = false;
+      userHasEditedDraftExerciseSearch = false;
       pronunciationLearnOffer = null;
       pronunciationLearnSavedMessage = null;
       rerender();
@@ -658,6 +670,7 @@ export async function renderLogPage() {
       draft = null;
       draftExerciseSearchQuery = '';
       draftExerciseDropdownOpen = false;
+      userHasEditedDraftExerciseSearch = false;
       pronunciationLearnOffer = null;
       pronunciationLearnSavedMessage = null;
       rerender();
@@ -726,6 +739,7 @@ export async function renderLogPage() {
 
     document.getElementById('draft-exercise-input')?.addEventListener('input', (e) => {
       draftExerciseSearchQuery = e.target.value;
+      userHasEditedDraftExerciseSearch = true;
       draftExerciseDropdownOpen = true;
       rerender();
       const freshInput = document.getElementById('draft-exercise-input');
@@ -749,6 +763,7 @@ export async function renderLogPage() {
 
         applyDraftExerciseChange(exerciseId);
         draftExerciseSearchQuery = exerciseName;
+        userHasEditedDraftExerciseSearch = true;
         draftExerciseDropdownOpen = false;
 
         // Only worth offering to "learn" this when: it came from voice
@@ -879,6 +894,7 @@ export async function renderLogPage() {
       draft = null;
       draftExerciseSearchQuery = '';
       draftExerciseDropdownOpen = false;
+      userHasEditedDraftExerciseSearch = false;
       pronunciationLearnOffer = null;
       pronunciationLearnSavedMessage = null;
       const full = await getSession(activeSessionId);
